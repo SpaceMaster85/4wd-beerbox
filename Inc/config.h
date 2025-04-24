@@ -20,7 +20,7 @@
   //#define VARIANT_HOVERBOARD  // Variant for HOVERBOARD build
   //#define VARIANT_TRANSPOTTER // Variant for TRANSPOTTER build https://github.com/NiklasFauth/hoverboard-firmware-hack/wiki/Build-Instruction:-TranspOtter https://hackaday.io/project/161891-transpotter-ng
   //#define VARIANT_SKATEBOARD  // Variant for SKATEBOARD build
-  //#define VARIANT_BBCAR       // Variant for small Toy-Car with steering wheel with 4 drive modes https://larsm.org/allrad-e-bobby-car/
+  //#define VARIANT_BEERBOX       // Variant for small Toy-Car with steering wheel with 4 drive modes https://larsm.org/allrad-e-bobby-car/
 #endif
 // ########################### END OF VARIANT SELECTION ############################
 
@@ -28,7 +28,7 @@
 // ############################### DO-NOT-TOUCH SETTINGS ###############################
 #define PWM_FREQ            16000     // PWM frequency in Hz / is also used for buzzer
 #define DEAD_TIME              48     // PWM deadtime
-#if defined(VARIANT_TRANSPOTTER) || defined(VARIANT_BBCAR)
+#if defined(VARIANT_TRANSPOTTER) //|| defined(VARIANT_BEERBOX)
   #define DELAY_IN_MAIN_LOOP    2
 #else
   #define DELAY_IN_MAIN_LOOP    5     // in ms. default 5. it is independent of all the timing critical stuff. do not touch if you do not know what you are doing.
@@ -180,7 +180,7 @@
 #define ADC_MARGIN                30     // ADC input margin applied on the raw ADC min and max to make sure the MIN and MAX values are reached even in the presence of noise
 #define ADC_PROTECT_TIMEOUT       150     // ADC Protection: number of wrong / missing input commands before safety state is taken
 #define ADC_PROTECT_THRESH        150     // ADC Protection threshold below/above the MIN/MAX ADC values
-#define AUTO_CALIBRATION_ENA              // Enable/Disable input auto-calibration by holding power button pressed. Un-comment this if auto-calibration is not needed.
+//#define AUTO_CALIBRATION_ENA              // Enable/Disable input auto-calibration by holding power button pressed. Un-comment this if auto-calibration is not needed.
 
 /* FILTER is in fixdt(0,16,16): VAL_fixedPoint = VAL_floatingPoint * 2^16. In this case 6553 = 0.1 * 2^16
  * Value of COEFFICIENT is in fixdt(1,16,14)
@@ -310,9 +310,9 @@
 
 
 
-// ################################# VARIANT BBCAR #################################
+// ################################# VARIANT beerbox #################################
 
-#ifdef VARIANT_BBCAR
+#ifdef VARIANT_BEERBOX
   #define CONTROL_ADC           0       // use ADC as input. Number indicates priority for dual-input. Disable CONTROL_SERIAL_USART2, FEEDBACK_SERIAL_USART2, DEBUG_SERIAL_USART2!
 
   // have a look at DEFAULT SETTINGS section:
@@ -354,7 +354,7 @@
   #define DEBUG_SERIAL_USART3       // right sensor cable debug
 #endif
 
-// ############################## END OF VARIANT BBCAR ##############################
+// ############################## END OF VARIANT beerbox ##############################
 
 
 
@@ -730,7 +730,7 @@
 
 // ############################### VALIDATE SETTINGS ###############################
 #if !defined(VARIANT_ADC) && !defined(VARIANT_USART) && !defined(VARIANT_NUNCHUK) && !defined(VARIANT_PPM) && !defined(VARIANT_PWM) && \
-    !defined(VARIANT_IBUS) && !defined(VARIANT_HOVERCAR) && !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) && !defined(VARIANT_SKATEBOARD) && !defined(VARIANT_BBCAR)
+    !defined(VARIANT_IBUS) && !defined(VARIANT_HOVERCAR) && !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) && !defined(VARIANT_SKATEBOARD) && !defined(VARIANT_BEERBOX)
   #error Variant not defined! Please check platformio.ini or Inc/config.h for available variants.
 #endif
 

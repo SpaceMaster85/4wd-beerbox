@@ -67,7 +67,7 @@ extern volatile uint16_t pwm_captured_ch1_value;
 extern volatile uint16_t pwm_captured_ch2_value;
 #endif
 
-#ifdef VARIANT_BBCAR
+#ifdef VARIANT_BEERBOX
   int8_t drive_mode = 0;
   int32_t adc_error_break_and_poweroff = 0;
 #endif
@@ -462,7 +462,7 @@ void beepShortMany(uint8_t cnt, int8_t dir) {
     }
 }
 
-#ifdef VARIANT_BBCAR
+#ifdef VARIANT_BEERBOX
   void beepShortMany2(uint8_t cnt) {
       for(uint8_t i = 0; i < cnt; i++) {
       beepShort(2);
@@ -772,9 +772,9 @@ void cruiseControl(uint8_t button) {
 }
 
 
-/* =========================== START BBCAR Functions =========================== */
+/* =========================== START beerbox Functions =========================== */
 
-  #ifdef VARIANT_BBCAR
+  #ifdef VARIANT_BEERBOX
     static float speedRL = 0.0;  // [-1000.0 to 1000.0] for high precision internal speed calculation
     static float weak = 0.0;  // [-0.0 to 500.0]
     
@@ -828,7 +828,7 @@ void cruiseControl(uint8_t button) {
      * Input: potis: full press poti(s), poweron, release poti(s)
      * Output: drive_mode
      */
-    void bbcarDetectDrivingMode() {
+    void beerboxDetectDrivingMode() {
       readInputRaw();
       input1_filtered = input1[inIdx].min;  // set start value
       input2_filtered = input2[inIdx].min;
@@ -898,7 +898,7 @@ void cruiseControl(uint8_t button) {
      * Input: potis
      * Output: speed (normal motor speed), weak (field weakening)
      */
-    int16_t bbcarLoop() {
+    int16_t beerboxLoop() {
       #define INPUT_MAX 1000  // [-] Defines the Input target maximum limitation
       #define INPUT_MIN -1000  // [-] Defines the Input target minimum limitation
 
@@ -963,7 +963,7 @@ void cruiseControl(uint8_t button) {
     }
   #endif
 
-/* =========================== END BBCAR Functions =========================== */
+/* =========================== END beerbox Functions =========================== */
 
 
 
@@ -1243,7 +1243,7 @@ void handleTimeout(void) {
       }
     #endif
 
-    #ifndef VARIANT_BBCAR
+    #ifndef VARIANT_BEERBOX
       // In case of timeout bring the system to a Safe State
       if (timeoutFlgADC || timeoutFlgSerial || timeoutFlgGen) {
         ctrlModReq  = OPEN_MODE;                                          // Request OPEN_MODE. This will bring the motor power to 0 in a controlled way
@@ -1773,7 +1773,7 @@ void poweroff(void) {
 
 
 void poweroffPressCheck(void) {
-  #if !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER)
+  #if !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) && !defined(VARIANT_BEERBOX)
     if(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
       uint16_t cnt_press = 0;
       while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
@@ -1787,25 +1787,9 @@ void poweroffPressCheck(void) {
         HAL_Delay(1000);
         if (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {  // Double press: Adjust Max Current, Max Speed
           while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) { HAL_Delay(10); }
-          #ifdef VARIANT_BBCAR
-          if (ABS((int)speedRL) < 5) {
-            beepLong(16);
-            HAL_Delay(200);
-            beepLong(16);
-            enable = 0;
-            printf("# motors disabled\r\n");
-            rtP_Left.z_ctrlTypSel = FOC_CTRL;
-            rtP_Right.z_ctrlTypSel = FOC_CTRL;
-            printf("# switched to FOC_CTRL\r\n");
-            enable = 1;
-            printf("# motors enabled\r\n");
-            speedRL = 0.0;
-          }
-          #else
             beepLong(8);
             updateCurSpdLim();
             beepShort(5);
-          #endif
         } else {                                          // Long press: Calibrate ADC Limits
           #ifdef AUTO_CALIBRATION_ENA
           beepLong(16); 
@@ -1821,6 +1805,21 @@ void poweroffPressCheck(void) {
       poweroff();
       }
     }
+  #elif defined(VARIANT_BEERBOX)
+  if(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
+    uint16_t cnt_press = 0;
+    while(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
+      HAL_Delay(10);
+      cnt_press++;
+      if (cnt_press > 8) {                         // power off (80 ms debounce)
+      #if defined(DEBUG_SERIAL_USART2) || defined(DEBUG_SERIAL_USART3)
+        printf("Powering off, button has been released\r\n");
+      #endif
+    poweroff();
+    }
+  }
+}   
+
   #elif defined(VARIANT_TRANSPOTTER)
     if(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
       enable = 0;

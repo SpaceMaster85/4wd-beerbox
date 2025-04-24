@@ -149,7 +149,7 @@ static uint8_t sideboard_leds_R;
   static uint16_t transpotter_counter = 0;
 #endif
 
-#ifdef VARIANT_BBCAR
+#ifdef VARIANT_BEERBOX
   int16_t    speed;                // local variable for speed. -1000 to 1000
   int16_t speedL     = 0, speedR     = 0;
   int16_t lastSpeedL = 0, lastSpeedR = 0;
@@ -217,9 +217,8 @@ int main(void) {
   poweronMelody();
   HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);
 
-  #ifdef VARIANT_BBCAR
-    poweroffPressCheck();  //to prevent shutdown by bad adc values before calibaration. here you can enter calibration mode before shutdown.
-    bbcarDetectDrivingMode();
+  #ifdef VARIANT_BEERBOX
+    beerboxDetectDrivingMode();
   #endif
   
   int32_t board_temp_adcFixdt = adc_buffer.temp << 16;  // Fixed-point filter output initialized with current ADC converted to fixed-point
@@ -248,9 +247,10 @@ int main(void) {
 
     printf("Drive mode %i selected: max_speed:%i acc_rate:%i \r\n", drive_mode, max_speed, rate);
   #endif
-
-  // Loop until button is released
-  while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) { HAL_Delay(10); }
+  #ifndef VARIANT_BEERBOX
+    // Loop until button is released
+    while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) { HAL_Delay(10); }
+  #endif
 
   #ifdef MULTI_MODE_DRIVE
     // Wait until triggers are released. Exit if timeout elapses (to unblock if the inputs are not calibrated)
@@ -362,8 +362,8 @@ int main(void) {
         mixerFcn(speed << 4, steer << 4, &cmdR, &cmdL);   // This function implements the equations above
       #endif
       
-      #ifdef VARIANT_BBCAR
-        cmdR = cmdL = bbcarLoop();
+      #ifdef VARIANT_BEERBOX
+        cmdR = cmdL = beerboxLoop();
       #endif
 
 

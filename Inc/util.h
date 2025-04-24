@@ -108,12 +108,12 @@ void usart_process_sideboard(SerialSideboard *Sideboard_in, SerialSideboard *Sid
 void sideboardLeds(uint8_t *leds);
 void sideboardSensors(uint8_t sensors);
 
-#ifdef VARIANT_BBCAR
+#ifdef VARIANT_BEERBOX
   void adc_error_melody();
   int32_t isAroundMin(int32_t value, int32_t minn, int32_t maxx);
   int32_t isAroundMax(int32_t value, int32_t minn, int32_t maxx);
-  void bbcarDetectDrivingMode();
-  int16_t bbcarLoop();
+  void beerboxDetectDrivingMode();
+  int16_t beerboxLoop();
 #endif
 
 // Poweroff Functions

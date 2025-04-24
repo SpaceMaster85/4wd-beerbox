@@ -1,7 +1,7 @@
 ## hoverboard-firmware-hack-FOC - beerbox edition
-This is a 4-wheel-drive-bobbycar-optimized version of the famous [hoverboard mainboard FOC firmware by EmanuelFeru](https://github.com/EFeru/hoverboard-firmware-hack-FOC). This an improved version of my [old bbcar firmware](https://github.com/larsmm/hoverboard-firmware-hack-bbcar).
+This is a 4-wheel-drive-bobbycar-optimized version of the famous [hoverboard mainboard FOC firmware by EmanuelFeru](https://github.com/EFeru/hoverboard-firmware-hack-FOC). This an improved version of my [old beerbox firmware](https://github.com/larsmm/hoverboard-firmware-hack-beerbox).
 
-![bobbycar pic](https://raw.githubusercontent.com/larsmm/hoverboard-firmware-hack-bbcar/master/pic1.jpg)
+![bobbycar pic](https://raw.githubusercontent.com/larsmm/hoverboard-firmware-hack-beerbox/master/pic1.jpg)
 
 ### Features
 * Controlled by 2 potis on the steering wheel: 1. forward, 2. break or backward or turbo mode
@@ -40,7 +40,7 @@ Peak power on full throttle+turbo on dry sand is around 50A = ~2300W at 12 lithi
 On new boards the chip is write-protected and must be [unlocked first](https://github.com/EFeru/hoverboard-firmware-hack-FOC/wiki/How-to-Unlock-MCU-flash).
 * Install Visual Studio Code
 * Install PlatformIO IDE within VSCode extension system
-* File --> open folder: hoverboard-firmware-hack-FOC-bbcar
+* File --> open folder: hoverboard-firmware-hack-FOC-beerbox
 * Connect st-link v2 adapter to the board (do not connect 3.3V) [pic](https://github.com/EFeru/hoverboard-firmware-hack-FOC#hardware)
 * Connect battery or power supply to the board
 * Press and hold poweron button, press "Upload" button, wait for upload to finish, release poweron button
