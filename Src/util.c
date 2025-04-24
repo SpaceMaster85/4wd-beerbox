@@ -851,14 +851,11 @@ void cruiseControl(uint8_t button) {
       // Drive Mode 1, left:      3 kmh, no Turbo
       // Drive Mode 2, default:   6 kmh, no Turbo
       // Drive Mode 3, right:    12 kmh, no Turbo
-      // Drive Mode 4, l + r:    22 kmh, 39 kmh with Turbo
+      // Drive Mode 4, l + r:    22 kmh,
       int16_t start_left  = input2[inIdx].raw;  // ADC2, left, backward, green
       int16_t start_right = input1[inIdx].raw;  // ADC1, right, foward, blue
       HAL_Delay(300);
-      if(isAroundMax(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 4
-        drive_mode = 4;
-        beepShortMany2(4);
-      } else if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 3
+      if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 3
         drive_mode = 3;
         beepShortMany2(3);
       } else if(isAroundMax(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMin(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 1
@@ -904,11 +901,20 @@ void cruiseControl(uint8_t button) {
 
       // LOW-PASS FILTER (exponential moving average)
       input1_filtered = input1_filtered * 0.9 + (float)input1[inIdx].raw * 0.1;  // ADC1, TX, rechts, vorwaerts, blau
-      input2_filtered = input2_filtered * 0.9 + (float)input2[inIdx].raw * 0.1;  // ADC2, RX, links, rueckwearts, gruen
+      //input2_filtered = input2_filtered * 0.9 + (float)input2[inIdx].raw * 0.1;  // ADC2, RX, links, rueckwearts, gruen
+
+
 
       // poti range normalized from adc-min - adc-max to 0.0 - 1.0
       acc_cmd = CLAMP((input1_filtered - input1[inIdx].min) / (input1[inIdx].max - input1[inIdx].min), 0, 1.0);
-      brk_cmd = CLAMP((input2_filtered - input2[inIdx].min) / (input2[inIdx].max - input2[inIdx].min), 0, 1.0);
+      //brk_cmd = CLAMP((input2[inIdx].raw - input2[inIdx].min) / (input2[inIdx].max - input2[inIdx].min), 0, 1.0);
+
+      if (input2[inIdx].raw> (input1[inIdx].max + input1[inIdx].min)/2)
+      {
+        brk_cmd = acc_cmd;
+        acc_cmd =0;
+      }
+
 
       // if poti is significantly out of range: break and poweroff. if MAX or MIN gets too close to 0 or 4095 this feature gets disabled.
       // if(input1_filtered < ((input1[inIdx].min < 100) ? 0 : 50) || input1_filtered > ((input1[inIdx].max > 4095-400) ? 4095 : 4095-50) || input2_filtered < ((input2[inIdx].min < 100) ? 0 : 50) || input2_filtered > ((input2[inIdx].max > 4095-400) ? 4095 : 4095-50)){
@@ -942,24 +948,14 @@ void cruiseControl(uint8_t button) {
                 + acc_cmd * ACC_FORWARDS_M3*5.0  // accelerating forwards
                 - brk_cmd * ACC_BACKWARDS_M3*5.0;  // accelerating backwards
 
-      } else if (drive_mode == 4) {  // Mode 4: without fw: 22 km/h@12s, with fw: 39 km/h@12s
-        if (adc_error_break_and_poweroff) {  // emergency braking with less acceleration
-          float acc_forwards_m4 = 0.5;  // breaking acceleration for non-field weakening
-          speedRL = speedRL * (1.0 - (speedRL > 0 ? acc_forwards_m4/MAX_SPEED_FORWARDS_M4*5.0 : ACC_BACKWARDS_M4/MAX_SPEED_BACKWARDS_M4*5.0));  // breaking if poti is not pressed
-          weak = weak * 0.985;  // slowly ramp down field weakening
-        } else if (acc_cmd > 0.8 & brk_cmd > 0.8 & speedRL > 0.7 * (float)INPUT_MAX){  // car is fast, both potis full pressed, with field weakening
-          speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M4/MAX_SPEED_FORWARDS_M4*5.0 : ACC_BACKWARDS_M4/MAX_SPEED_BACKWARDS_M4*5.0))  // breaking if poti is not pressed
-                  + acc_cmd * ACC_FORWARDS_M4*5.0;  // accelerating forwards
-          weak = weak * 0.95 + 500.0 * 0.05;  // ramp up field weakening
-        } else {  // normal driving without field weakening
+      } else if (drive_mode == 4) {  // Mode 4: without fw: 22 km/h@12s, 
           speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M4/MAX_SPEED_FORWARDS_M4*5.0 : ACC_BACKWARDS_M4/MAX_SPEED_BACKWARDS_M4*5.0))  // breaking if poti is not pressed
                   + acc_cmd * ACC_FORWARDS_M4*5.0  // accelerating forwards
                   - brk_cmd * ACC_BACKWARDS_M4*5.0;  // accelerating backwards
-          weak = weak * 0.95;  // ramp down field weakening
-        }
       }
+      
 
-      return CLAMP((int16_t)(speedRL + weak), INPUT_MIN, FIELD_WEAK_HI);  // clamp output
+      return CLAMP((int16_t)(speedRL), INPUT_MIN, INPUT_MAX);  // clamp output
     }
   #endif
 
