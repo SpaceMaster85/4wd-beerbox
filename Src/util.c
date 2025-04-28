@@ -829,12 +829,13 @@ void cruiseControl(uint8_t button) {
      * Output: drive_mode
      */
     void beerboxDetectDrivingMode() {
+      HAL_Delay(100);
       readInputRaw();
       input1_filtered = input1[inIdx].min;  // set start value
       input2_filtered = input2[inIdx].min;
       
       printf("\r\n");
-      printf("# hoverboard-firmware-hack-FOC larsm's Bobby Car Edition\r\n");
+      printf("# Zipfelhausen GmbH Driving Beer Box Edition\r\n");
       printf("# GCC Version: %s\r\n",__VERSION__);
       printf("# Build Date: %s\r\n",__DATE__);
       printf("\r\n");
@@ -896,6 +897,9 @@ void cruiseControl(uint8_t button) {
      * Output: speed (normal motor speed), weak (field weakening)
      */
     int16_t beerboxLoop() {
+      drive_mode = 2;
+      //printf("# Input1: %i, Input2: %i\r\n", input1[inIdx].raw, input2[inIdx].raw);
+
       #define INPUT_MAX 1000  // [-] Defines the Input target maximum limitation
       #define INPUT_MIN -1000  // [-] Defines the Input target minimum limitation
 
@@ -913,6 +917,10 @@ void cruiseControl(uint8_t button) {
       {
         brk_cmd = acc_cmd;
         acc_cmd =0;
+      }
+      else
+      {
+        brk_cmd = 0;
       }
 
 
@@ -954,8 +962,10 @@ void cruiseControl(uint8_t button) {
                   - brk_cmd * ACC_BACKWARDS_M4*5.0;  // accelerating backwards
       }
       
-
+      printf("# speedRL: %4.2f, acc_cmd: %4.2f, brk_cmd: %4.2f\r\n", speedRL, acc_cmd, brk_cmd);
       return CLAMP((int16_t)(speedRL), INPUT_MIN, INPUT_MAX);  // clamp output
+     
+
     }
   #endif
 
@@ -1769,7 +1779,7 @@ void poweroff(void) {
 
 
 void poweroffPressCheck(void) {
-  #if !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) && !defined(VARIANT_BEERBOX)
+  #if !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER) 
     if(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
       uint16_t cnt_press = 0;
       while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
@@ -1801,20 +1811,20 @@ void poweroffPressCheck(void) {
       poweroff();
       }
     }
-  #elif defined(VARIANT_BEERBOX)
-  if(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
-    uint16_t cnt_press = 0;
-    while(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
-      HAL_Delay(10);
-      cnt_press++;
-      if (cnt_press > 8) {                         // power off (80 ms debounce)
-      #if defined(DEBUG_SERIAL_USART2) || defined(DEBUG_SERIAL_USART3)
-        printf("Powering off, button has been released\r\n");
-      #endif
-    poweroff();
-    }
-  }
-}   
+  // #elif defined(VARIANT_BEERBOX)
+  // if(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
+  //   uint16_t cnt_press = 0;
+  //   while(!HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {
+  //     HAL_Delay(10);
+  //     cnt_press++;
+  //     if (cnt_press > 8) {                         // power off (80 ms debounce)
+  //     #if defined(DEBUG_SERIAL_USART2) || defined(DEBUG_SERIAL_USART3)
+  //       printf("Powering off, button has been released\r\n");
+  //     #endif
+  //   poweroff();
+  //   }
+  // }
+//}   
 
   #elif defined(VARIANT_TRANSPOTTER)
     if(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {

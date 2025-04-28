@@ -247,10 +247,10 @@ int main(void) {
 
     printf("Drive mode %i selected: max_speed:%i acc_rate:%i \r\n", drive_mode, max_speed, rate);
   #endif
-  #ifndef VARIANT_BEERBOX
+
     // Loop until button is released
     while(HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) { HAL_Delay(10); }
-  #endif
+
 
   #ifdef MULTI_MODE_DRIVE
     // Wait until triggers are released. Exit if timeout elapses (to unblock if the inputs are not calibrated)
