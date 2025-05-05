@@ -322,13 +322,13 @@
   //  ADC_PROTECT_THRESH:
   //  - while driving normally: if adcvalue gets beyond adcrange+-ADC_PROTECT_THRESH for ADC_PROTECT_TIMEOUT (time).
 
-  #define PRI_INPUT1            1, 0, 1000, 3110, 0      // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  #define PRI_INPUT1            1, 938, 938, 3110, 0      // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
   #define PRI_INPUT2            1, 0, 0, 4095, 0      // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
   // DUAL_INPUTS will not work in this variant because it does not use the output mixer in main.c. eeprom settings for single input:
   #define FLASH_WRITE_KEY     0x1001    // Flash memory writing key. Change this key to ignore the input calibrations from the flash memory and use the ones in config.h
   #define DEBUG_SERIAL_USART3           // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
 
-  #define INVERT_R_DIRECTION
+  #define INVERT_L_DIRECTION
 
   // #define ADC_ALTERNATE_CONNECT           // use to swap ADC inputs (left and right. best practise is to swap cables and to use the same config on both boards.)
 

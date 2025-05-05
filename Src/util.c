@@ -855,6 +855,9 @@ void cruiseControl(uint8_t button) {
       // Drive Mode 4, l + r:    22 kmh,
       int16_t start_left  = input2[inIdx].raw;  // ADC2, left, backward, green
       int16_t start_right = input1[inIdx].raw;  // ADC1, right, foward, blue
+      printf("# Input1 (right): %i, Input2 (left): %i\r\n", start_right, start_left);
+
+
       HAL_Delay(300);
       if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 3
         drive_mode = 3;
@@ -897,7 +900,7 @@ void cruiseControl(uint8_t button) {
      * Output: speed (normal motor speed), weak (field weakening)
      */
     int16_t beerboxLoop() {
-      drive_mode = 2;
+      //drive_mode = 2;
       //printf("# Input1: %i, Input2: %i\r\n", input1[inIdx].raw, input2[inIdx].raw);
 
       #define INPUT_MAX 1000  // [-] Defines the Input target maximum limitation
