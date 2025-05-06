@@ -776,7 +776,6 @@ void cruiseControl(uint8_t button) {
 
   #ifdef VARIANT_BEERBOX
     static float speedRL = 0.0;  // [-1000.0 to 1000.0] for high precision internal speed calculation
-    static float weak = 0.0;  // [-0.0 to 500.0]
     
     extern int16_t speedL, speedR, speed;
 
@@ -842,32 +841,31 @@ void cruiseControl(uint8_t button) {
       printf("# Mode 1: MAX_SPEED_FORWARDS_M1:%i ACC_FORWARDS_M1:%4.2f MAX_SPEED_BACKWARDS_M1:%i ACC_BACKWARDS_M1:%4.2f (no turbo)\r\n", MAX_SPEED_FORWARDS_M1, ACC_FORWARDS_M1, MAX_SPEED_BACKWARDS_M1, ACC_BACKWARDS_M1);
       printf("# Mode 2: MAX_SPEED_FORWARDS_M2:%i ACC_FORWARDS_M2:%4.2f MAX_SPEED_BACKWARDS_M2:%i ACC_BACKWARDS_M2:%4.2f (no turbo)\r\n", MAX_SPEED_FORWARDS_M2, ACC_FORWARDS_M2, MAX_SPEED_BACKWARDS_M2, ACC_BACKWARDS_M2);
       printf("# Mode 3: MAX_SPEED_FORWARDS_M3:%i ACC_FORWARDS_M3:%4.2f MAX_SPEED_BACKWARDS_M3:%i ACC_BACKWARDS_M3:%4.2f (no turbo)\r\n", MAX_SPEED_FORWARDS_M3, ACC_FORWARDS_M3, MAX_SPEED_BACKWARDS_M3, ACC_BACKWARDS_M3);
-      printf("# Mode 4: MAX_SPEED_FORWARDS_M4:%i ACC_FORWARDS_M4:%4.2f MAX_SPEED_BACKWARDS_M4:%i ACC_BACKWARDS_M4:%4.2f (turbo)\r\n", MAX_SPEED_FORWARDS_M4, ACC_FORWARDS_M4, MAX_SPEED_BACKWARDS_M4, ACC_BACKWARDS_M4);
       printf("# ADC_MARGIN: %i\r\n", ADC_MARGIN);
       printf("\r\n");
 
       // ####### driving modes #######
 
       // Hold the following potis to choose driving mode while poweron:
-      // Drive Mode 1, left:      3 kmh, no Turbo
-      // Drive Mode 2, default:   6 kmh, no Turbo
-      // Drive Mode 3, right:    12 kmh, no Turbo
-      // Drive Mode 4, l + r:    22 kmh,
+      // Drive Mode 1, default:   6 kmh, no Turbo
+      // Drive Mode 2, left:    12 kmh, no Turbo
+      // Drive Mode 3, l + r:    22 kmh,
+      
       int16_t start_left  = input2[inIdx].raw;  // ADC2, left, backward, green
       int16_t start_right = input1[inIdx].raw;  // ADC1, right, foward, blue
       printf("# Input1 (right): %i, Input2 (left): %i\r\n", start_right, start_left);
 
 
       HAL_Delay(300);
-      if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 3
+      if(isAroundMax(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMax(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 3
         drive_mode = 3;
         beepShortMany2(3);
-      } else if(isAroundMax(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMin(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 1
-        drive_mode = 1;
-        beepShortMany2(1);
-      } else if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMin(start_right, input1[inIdx].min, input1[inIdx].max)) {  // Mode 2
+      } else if(isAroundMax(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMin(start_right, input1[inIdx].min, input1[inIdx].max)){  // Mode 2
         drive_mode = 2;
         beepShortMany2(2);
+      } else if(isAroundMin(start_left, input2[inIdx].min, input2[inIdx].max) && isAroundMin(start_right, input1[inIdx].min, input1[inIdx].max)) {  // Mode 1
+        drive_mode = 1;
+        beepShortMany2(1);
       }
       printf("# Input1 (right): %i, Input2 (left): %i\r\n", start_right, start_left);
       if(drive_mode == 0){
@@ -900,9 +898,8 @@ void cruiseControl(uint8_t button) {
      * Output: speed (normal motor speed), weak (field weakening)
      */
     int16_t beerboxLoop() {
-      //drive_mode = 2;
-      //printf("# Input1: %i, Input2: %i\r\n", input1[inIdx].raw, input2[inIdx].raw);
 
+      //printf("# Input1: %i, Input2: %i\r\n", input1[inIdx].raw, input2[inIdx].raw);
       #define INPUT_MAX 1000  // [-] Defines the Input target maximum limitation
       #define INPUT_MIN -1000  // [-] Defines the Input target minimum limitation
 
@@ -944,31 +941,24 @@ void cruiseControl(uint8_t button) {
         }
       }
 
-      if (drive_mode == 1) {  // Mode 1: 3 km/h@12s
+      if (drive_mode == 1) {  // Mode 1 
         speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M1/MAX_SPEED_FORWARDS_M1*5.0 : ACC_BACKWARDS_M1/MAX_SPEED_BACKWARDS_M1*5.0))  // breaking if poti is not pressed
                 + acc_cmd * ACC_FORWARDS_M1*5.0  // accelerating forwards
                 - brk_cmd * ACC_BACKWARDS_M1*5.0;  // accelerating backwards
 
-      } else if (drive_mode == 2) {  // Mode 2: 6 km/h@12s
+      } else if (drive_mode == 2) {  // Mode 2 
         speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M2/MAX_SPEED_FORWARDS_M2*5.0 : ACC_BACKWARDS_M2/MAX_SPEED_BACKWARDS_M2*5.0))  // breaking if poti is not pressed
                 + acc_cmd * ACC_FORWARDS_M2*5.0  // accelerating forwards
                 - brk_cmd * ACC_BACKWARDS_M2*5.0;  // accelerating backwards
 
-      } else if (drive_mode == 3) {  // Mode 3: 12 km/h@12s
+      } else if (drive_mode == 3) {  // Mode 3
         speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M3/MAX_SPEED_FORWARDS_M3*5.0 : ACC_BACKWARDS_M3/MAX_SPEED_BACKWARDS_M3*5.0))  // breaking if poti is not pressed
                 + acc_cmd * ACC_FORWARDS_M3*5.0  // accelerating forwards
                 - brk_cmd * ACC_BACKWARDS_M3*5.0;  // accelerating backwards
-
-      } else if (drive_mode == 4) {  // Mode 4: without fw: 22 km/h@12s, 
-          speedRL = speedRL * (1.0 - (speedRL > 0 ? ACC_FORWARDS_M4/MAX_SPEED_FORWARDS_M4*5.0 : ACC_BACKWARDS_M4/MAX_SPEED_BACKWARDS_M4*5.0))  // breaking if poti is not pressed
-                  + acc_cmd * ACC_FORWARDS_M4*5.0  // accelerating forwards
-                  - brk_cmd * ACC_BACKWARDS_M4*5.0;  // accelerating backwards
       }
       
       printf("# speedRL: %4.2f, acc_cmd: %4.2f, brk_cmd: %4.2f\r\n", speedRL, acc_cmd, brk_cmd);
       return CLAMP((int16_t)(speedRL), INPUT_MIN, INPUT_MAX);  // clamp output
-     
-
     }
   #endif
 

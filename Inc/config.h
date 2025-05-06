@@ -180,7 +180,7 @@
 #define ADC_MARGIN                30     // ADC input margin applied on the raw ADC min and max to make sure the MIN and MAX values are reached even in the presence of noise
 #define ADC_PROTECT_TIMEOUT       150     // ADC Protection: number of wrong / missing input commands before safety state is taken
 #define ADC_PROTECT_THRESH        150     // ADC Protection threshold below/above the MIN/MAX ADC values
-#define AUTO_CALIBRATION_ENA              // Enable/Disable input auto-calibration by holding power button pressed. Un-comment this if auto-calibration is not needed.
+//#define AUTO_CALIBRATION_ENA              // Enable/Disable input auto-calibration by holding power button pressed. Un-comment this if auto-calibration is not needed.
 
 /* FILTER is in fixdt(0,16,16): VAL_fixedPoint = VAL_floatingPoint * 2^16. In this case 6553 = 0.1 * 2^16
  * Value of COEFFICIENT is in fixdt(1,16,14)
@@ -330,28 +330,23 @@
 
   #define INVERT_L_DIRECTION
 
-  // #define ADC_ALTERNATE_CONNECT           // use to swap ADC inputs (left and right. best practise is to swap cables and to use the same config on both boards.)
-
+ 
   // Here you can tune the speeds and accelerations of the 4 modes:
-  #define MAX_SPEED_FORWARDS_M1 130  // speed_calculator.ods
+
+  #define MAX_SPEED_FORWARDS_M1 280
   #define ACC_FORWARDS_M1 0.8
-  #define MAX_SPEED_BACKWARDS_M1 90
+  #define MAX_SPEED_BACKWARDS_M1 190
   #define ACC_BACKWARDS_M1 0.8
 
-  #define MAX_SPEED_FORWARDS_M2 280
+  #define MAX_SPEED_FORWARDS_M2 540
   #define ACC_FORWARDS_M2 0.8
-  #define MAX_SPEED_BACKWARDS_M2 190
+  #define MAX_SPEED_BACKWARDS_M2 240
   #define ACC_BACKWARDS_M2 0.8
 
-  #define MAX_SPEED_FORWARDS_M3 540
+  #define MAX_SPEED_FORWARDS_M3 750  
   #define ACC_FORWARDS_M3 0.8
-  #define MAX_SPEED_BACKWARDS_M3 240
+  #define MAX_SPEED_BACKWARDS_M3 280
   #define ACC_BACKWARDS_M3 0.8
-
-  #define MAX_SPEED_FORWARDS_M4 1000  // do not change this in mode 4 unless you know what you are doing! (field weakening starts above 1000. there must not be a gap between max command and fw start.)
-  #define ACC_FORWARDS_M4 0.8
-  #define MAX_SPEED_BACKWARDS_M4 300
-  #define ACC_BACKWARDS_M4 0.8
 
   #define DEBUG_SERIAL_USART3       // right sensor cable debug
 #endif
